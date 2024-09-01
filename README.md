@@ -3,6 +3,8 @@
 ### 1. Create and run venv
     `python3 -m venv .venv`
     `source .venv/bin/activate`
+    `pip install -U pip`
+    `pip install -r requirements.txt`
 
 ### 2. Creating the necessary directories with access permissions.
     `python create_project_folders.py` 
@@ -10,7 +12,10 @@
     ./data/db
     ./uploads
 
- ### 3. Apply migrations
+### 3. Run docker services
+    `docker-compose up -d `
+
+### 4. Apply migrations
     `alembic upgrade head`
 
 ---

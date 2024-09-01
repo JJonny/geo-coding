@@ -6,7 +6,7 @@ from sqlalchemy import pool
 from alembic import context
 
 from app.database import Base
-from app.config import settings
+from app.config import Config
 from app.models import Task
 
 # this is the Alembic Config object, which provides
@@ -18,7 +18,10 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-config.set_main_option("sqlalchemy.url", settings.async_db_connection + "?async_fallback=True")
+config.set_main_option("sqlalchemy.url",
+    f"postgresql+psycopg2://"
+    f"{Config.POSTGRES_USER}:{Config.POSTGRES_PASSWORD}@localhost:{Config.POSTGRES_PORT}/{Config.POSTGRES_DB}"
+)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
