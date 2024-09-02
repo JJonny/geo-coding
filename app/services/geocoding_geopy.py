@@ -22,8 +22,8 @@ def backoff(func):
             except GeocoderTimedOut:
                 threshold += 1
                 time.sleep(30)
-                logger.info(f"Timeout service occurred. Coordinates: {kwargs.get('coordinates')}")
-        logger.warning(f"The service can't provide data for the coordinates: {kwargs.get('coordinates')}")
+                logger.info(f"Timeout service occurred. Coordinates: {args[1]}")
+        logger.warning(f"The service can't provide data for the coordinates: {args[1]}")
         return 'no data'
     return inner
 
