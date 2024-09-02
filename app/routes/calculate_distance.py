@@ -1,5 +1,4 @@
 import io
-from asgiref.sync import sync_to_async
 from uuid import uuid4
 
 from flask import Blueprint, request, jsonify

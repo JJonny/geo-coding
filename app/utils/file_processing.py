@@ -1,7 +1,7 @@
 import csv
 
 from app.services.calculation_dist import calculate_all_distances
-from app.services.geocoding import reverse_geocode
+from app.services.geocoding_geopy import GeoCodingGeopy
 
 
 def process_geo_data(points):
@@ -10,7 +10,7 @@ def process_geo_data(points):
     And generate readable addresses
     """
     distance = calculate_all_distances(points)
-    addresses = reverse_geocode(points)
+    addresses = GeoCodingGeopy().reverse_geocode(points)
 
     result_data = {
         "points": addresses,
