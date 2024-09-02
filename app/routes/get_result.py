@@ -11,6 +11,6 @@ get_result_bp = Blueprint('get_result', __name__)
 def get_result_route(result_id):
 
     result = get_all_by_task_id(result_id)
-    result = json.dumps(result, ensure_ascii=False, indent=4)
+    result = json.dumps(result, ensure_ascii=False)
 
     return Response(result, mimetype='application/json')
