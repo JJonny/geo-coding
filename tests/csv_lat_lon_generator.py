@@ -1,28 +1,19 @@
 import csv
 import random
+import uuid
 
-def generate_csv(num_points: int = 5000):
+def generate_csv(num_points: int = 5_000):
     """Generate unique coordinates within a specific range"""
     def generate_coordinates():
-        latitude = random.uniform(49.0, 51.0)  # Range for latitude
-        longitude = random.uniform(29.0, 35.0)  # Range for longitude
+        latitude = round(random.uniform(49.0, 51.0), 6)  # Range for latitude
+        longitude = round(random.uniform(29.0, 35.0), 6)  # Range for longitude
         return latitude, longitude
 
-    # Generate the list of point names: A-Z, then AA, AB, etc.
-    points = []
-    letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    for first in [""] + list(letters):
-        for second in letters:
-            points.append(f"{first}{second}")
-            if len(points) >= num_points:
-                break
-        if len(points) >= num_points:
-            break
 
     data = []
-    for point in points:
+    for _ in range(num_points):
         latitude, longitude = generate_coordinates()
-        data.append((point, latitude, longitude))
+        data.append((str(uuid.uuid4()), latitude, longitude))
 
     csv_filename = "points.csv"
     with open(csv_filename, "w", newline="") as csvfile:
