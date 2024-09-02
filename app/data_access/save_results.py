@@ -46,7 +46,6 @@ def save_results_to_db(data: dict, task_id: uuid.UUID):
             session.flush()
             session.commit()
 
-
     except Exception as e:
         session.rollback()
         raise e
