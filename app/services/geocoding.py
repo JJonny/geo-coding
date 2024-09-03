@@ -3,6 +3,7 @@ from typing import Any
 
 
 class Geocoding(ABC):
+    """Interface for reverse geo coding service."""
     @abstractmethod
     def _get_location(self, coordinates: tuple[float, float], **kwargs):
         pass

@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 @shared_task(base=AbortableTask)
 def reverse_geocode_and_calculate_distances(points, task_id):
+    """Celery task for calculate distances and addresses for points."""
     try:
         res = process_geo_data(points)
         save_results_to_db(res, task_id)

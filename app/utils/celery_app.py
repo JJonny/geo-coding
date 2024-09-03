@@ -2,6 +2,8 @@ from celery import Celery
 
 
 def make_celery(app):
+    """Init celery."""
+
     celery = Celery(
         app.import_name,
         backend=app.config['CELERY_RESULT_BACKEND'],

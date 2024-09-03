@@ -14,6 +14,8 @@ calculate_distance_bp = Blueprint('calculate_distance', __name__)
 
 @calculate_distance_bp.route('/calculateDistance', methods=['POST'])
 def calculate_distance_route():
+    """Calculate distance endpoint."""
+
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
 
@@ -51,6 +53,7 @@ def calculate_distance_route():
 
 
 def local_calc(points, task_id):
+    """Util func for testing localy without celery"""
     from app.utils.file_processing import process_geo_data
     from app.data_access.save_results import save_results_to_db
     res = process_geo_data(points)

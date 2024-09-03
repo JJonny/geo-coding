@@ -47,16 +47,19 @@ def backoff(start_sleep_time: float = 3.0, factor: int = 2, border_sleep_time: i
 
 
 class GeoCodingGeopy(Geocoding):
-
+    """Revers Geo coding service. Used geopy lib."""
     def __init__(self):
         self.geolocator = Nominatim(user_agent="geocode-revers")
 
     @backoff()
     def _get_location(self, coordinates: tuple[float, float]) -> str:
+        """Get readable address by coordinates."""
+
         location = self.geolocator.reverse(coordinates, exactly_one=True)
         return location.address
 
     def reverse_geocode(self, points: list) -> list[dict[str, Any]]:
+        """Collect all addresses by coordinates."""
         addresses = []
 
         for point in points:
