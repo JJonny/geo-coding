@@ -9,7 +9,6 @@ from geopy.adapters import GeocoderTimedOut
 from app.services.geocoding import Geocoding
 
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 

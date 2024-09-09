@@ -3,7 +3,7 @@ from uuid import uuid4
 
 from flask import Blueprint, request, jsonify
 
-from app.database import async_session, sync_session
+from app.database import sync_session
 from app.models import Task
 from app.services.tasks import reverse_geocode_and_calculate_distances
 from app.utils.file_processing import process_file_data
