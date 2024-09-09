@@ -1,11 +1,11 @@
 from flask import Flask
 from flask_cors import CORS
 
-from .config import Config
-from .routes.calculate_distance import calculate_distance_bp
-from .routes.get_result import get_result_bp
-from .swagger import swagger_ui_blueprint
-from .utils.celery_app import make_celery
+from app.config import Config
+from app.routes.calculate_distance import calculate_distance_bp
+from app.routes.get_result import get_result_bp
+from app.swagger import swagger_ui_blueprint
+from app.utils.celery_app import make_celery
 
 
 def create_app():

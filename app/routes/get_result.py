@@ -2,7 +2,7 @@ import json
 
 from flask import Blueprint, Response
 
-from app.data_access.get_results import get_all_by_task_id
+from app.data_access.task_manager import get_all_by_task_id
 
 get_result_bp = Blueprint('get_result', __name__)
 
