@@ -12,7 +12,7 @@ class Config:
     DB_DATA_FOLDER = BASE_DIR / 'data/db'
 
     REDIS_URL = os.getenv('REDIS_URL')
-    DEBUG = int(os.getenv('DEBUG'))
+    DEBUG = int(os.getenv('DEBUG', 0))
 
     if DEBUG:
         CELERY_BROKER_URL = 'redis://localhost:6379/1'
@@ -35,9 +35,5 @@ class Config:
         return (f"postgresql+psycopg2://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@"
                 f"{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}")
 
-    @property
-    def async_db_connection(self):
-        return (f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@"
-                f"{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}")
 
 settings = Config()
