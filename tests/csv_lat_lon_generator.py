@@ -2,6 +2,7 @@ import csv
 import random
 import uuid
 
+
 def generate_csv(num_points: int = 5_000):
     """Generate unique coordinates within a specific range"""
     def generate_coordinates():
