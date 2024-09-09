@@ -6,16 +6,10 @@
     `pip install -U pip`
     `pip install -r requirements.txt`
 
-### 2. Creating the necessary directories with access permissions.
-    `python create_project_folders.py` 
-    
-    ./data/db
-    ./uploads
-
-### 3. Run docker services
+### 2. Run docker services
     `docker-compose up -d `
 
-### 4. Apply migrations
+### 3. Apply migrations
     `alembic upgrade head`
 
 ---
