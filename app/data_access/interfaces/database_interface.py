@@ -1,7 +1,7 @@
 # app/data_access/interfaces/database_interface.py
 import uuid
 from abc import ABC, abstractmethod
-
+from typing import Union
 
 from app.models import Task
 
@@ -12,7 +12,7 @@ class DatabaseInterface(ABC):
         pass
 
     @abstractmethod
-    def get_task(self, task_id: uuid.UUID) -> Task:
+    def get_task(self, task_id: uuid.UUID) -> Union[Task | dict]:
         pass
 
     @abstractmethod
