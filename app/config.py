@@ -22,12 +22,17 @@ class Config:
     REDIS_URL = os.getenv('REDIS_URL')
     DEBUG = int(os.getenv('DEBUG', 0))
 
+    MONGO = int(os.getenv('MONGO', 0))
+    MONGO_URL_ADDR = os.getenv('MONGO_URL')
+
     if DEBUG:
         CELERY_BROKER_URL = 'redis://localhost:6379/1'
         CELERY_RESULT_BACKEND = 'redis://localhost:6379/1'
+        MONGO_URL = 'mongodb://localhost:27017'
     else:
         CELERY_BROKER_URL = REDIS_URL
         CELERY_RESULT_BACKEND = REDIS_URL
+        MONGO_URL = MONGO_URL_ADDR
 
     POSTGRES_USER = os.getenv('POSTGRES_USER')
     POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')

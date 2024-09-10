@@ -1,5 +1,6 @@
 import logging
 
+from app.data_access.repositories.mongo_repository import MongoDBRepository
 from app.data_access.repositories.postgres_repository import PostgresRepository
 from app.data_access.interfaces.database_interface import DatabaseInterface
 
@@ -19,5 +20,7 @@ class RepositoryFactory:
                 logger.error(f"Session shouldn't be None for Postgres repository.")
                 raise Exception("Session shouldn't be None")
             return PostgresRepository(db_session)
+        else:
+            return MongoDBRepository(self.app.config['MONGO_URL'])
 
 
