@@ -1,5 +1,6 @@
 data/
 uploads/
+mongo_data/
 
 .idea/
 .venv/
