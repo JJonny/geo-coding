@@ -1,11 +1,12 @@
 import logging
 import time
 from functools import wraps
-from typing import Any
+from typing import Any, Union
 
 from geopy.geocoders import Nominatim
 from geopy.adapters import GeocoderTimedOut
 
+from app.data_access.models.models import PointAddress, Point
 from app.services.geocoding import Geocoding
 
 
@@ -57,13 +58,13 @@ class GeoCodingGeopy(Geocoding):
         location = self.geolocator.reverse(coordinates, exactly_one=True)
         return location.address
 
-    def reverse_geocode(self, points: list) -> list[dict[str, Any]]:
+    def reverse_geocode(self, coordinates_list: list[Point]) -> list[PointAddress]:
         """Collect all addresses by coordinates."""
-        addresses = []
+        addresses: list[PointAddress] = []
 
-        for point in points:
-            coordinates = (point[1], point[2])
+        for point in coordinates_list:
+            coordinates = (point.lat, point.lon)
             address = self._get_location(coordinates)
-            addresses.append({'name': point[0], 'address': address, 'lat': point[1], 'lon': point[2]})
+            addresses.append(PointAddress(point.name, address, point.lat, point.lon))
 
         return addresses

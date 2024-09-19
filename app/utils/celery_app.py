@@ -1,7 +1,9 @@
+from flask import Flask
+
 from celery import Celery
 
 
-def make_celery(app):
+def make_celery(app: Flask):
     """Init celery."""
 
     celery = Celery(

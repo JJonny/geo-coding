@@ -1,18 +1,20 @@
 from geopy.distance import great_circle     # faster then geodesic
 
+from app.data_access.models.models import Distance, Point
 
-def get_distance(point1: list, point2: list) -> dict[str, float]:
-    """Calculate distance between to points."""
-    name = f"{point1[0]}{point2[0]}"
-    coords_1 = (point1[1], point1[2])
-    coords_2 = (point2[1], point2[2])
+
+def get_distance(point1: Point, point2: Point) -> Distance:
+    """Calculate distance between two points."""
+    name = f"{point1.name}{point2.name}"
+    coords_1 = (point1.lat, point1.lon)
+    coords_2 = (point2.lat, point2.lon)
     distance = great_circle(coords_1, coords_2).meters
-    return {"name": name, "distance": distance}
+    return Distance(name, distance)
 
 
-def calculate_all_distances(points: dict[str, tuple[float, float]]) -> list[dict]:
+def calculate_all_distances(points: list[Point]) -> list[Distance]:
     """Calculate all distances from list of points."""
-    distances = []
+    distances: list[Distance] = []
     for i in range(len(points)):
         for j in range(i + 1, len(points)):
             dist = get_distance(points[i], points[j])

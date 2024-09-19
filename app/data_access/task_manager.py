@@ -3,6 +3,7 @@ import uuid
 
 from flask import current_app
 from app.database import sync_session
+from app.data_access.models.models import Distance, PointAddress
 from app.data_access.repositories.repository_factory import RepositoryFactory
 from app.models import Task, Location
 
@@ -42,7 +43,7 @@ def get_all_by_task_id(task_id: uuid.UUID) -> dict:
             return result
 
 
-def save_results_by_task_id(task_id: uuid.UUID, task_data: dict):
+def save_results_by_task_id(task_id: uuid.UUID, task_data: dict[str, [Distance | PointAddress]]):
     """Save results to DB."""
 
     with sync_session() as session:
