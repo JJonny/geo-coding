@@ -32,14 +32,6 @@ class PostgresRepository(DatabaseInterface):
         if task is None:
             raise ValueError(f"Task with ID {task_id} not found.")
 
-        # distances_json = [
-        #     {
-        #         'name': link['name'],
-        #         'distance': link['distance']
-        #     }
-        #     for link in task_data['links']
-        # ]
-
         task.distances = [item._asdict() for item in task_data['links']]
         task.status = 'done'
 
