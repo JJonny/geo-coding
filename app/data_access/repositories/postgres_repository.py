@@ -3,7 +3,7 @@ from uuid import uuid4
 
 from sqlalchemy import insert
 
-from app.models import Task, Location
+from app.models import Task, Location, TaskStatus
 from app.data_access.interfaces.database_interface import DatabaseInterface
 from app.data_access.models.models import Distance, PointAddress
 
@@ -33,7 +33,7 @@ class PostgresRepository(DatabaseInterface):
             raise ValueError(f"Task with ID {task_id} not found.")
 
         task.distances = [item._asdict() for item in task_data['links']]
-        task.status = 'done'
+        task.status = TaskStatus.DONE
 
         self.db_session.add(task)
 

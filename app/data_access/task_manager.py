@@ -33,7 +33,7 @@ def get_all_by_task_id(task_id: uuid.UUID) -> dict:
 
             result = {
                 "task_id": str(task.id),
-                "status": task.status,
+                "status": task.status.value,
                 "data": {
                     "points": addresses,
                     "links": task.distances
