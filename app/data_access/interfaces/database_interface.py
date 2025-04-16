@@ -2,7 +2,6 @@
 import uuid
 from abc import ABC, abstractmethod
 
-
 from app.models import Task
 
 

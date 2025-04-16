@@ -3,8 +3,8 @@ import logging
 from celery import shared_task
 from celery.contrib.abortable import AbortableTask
 
-from app.utils.file_processing import process_geo_data
 from app.data_access.task_manager import save_results_by_task_id
+from app.utils.file_processing import process_geo_data
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

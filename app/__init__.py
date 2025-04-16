@@ -13,13 +13,13 @@ def create_app():
     CORS(app)
     app.config.from_object(Config)
 
-    app.register_blueprint(calculate_distance_bp, url_prefix='/api')
-    app.register_blueprint(get_result_bp, url_prefix='/api')
+    app.register_blueprint(calculate_distance_bp, url_prefix="/api")
+    app.register_blueprint(get_result_bp, url_prefix="/api")
 
     # Celery init
     celery = make_celery(app)
     celery.set_default()
 
-    app.register_blueprint(swagger_ui_blueprint, url_prefix='/docs')
+    app.register_blueprint(swagger_ui_blueprint, url_prefix="/docs")
 
     return app, celery

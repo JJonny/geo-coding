@@ -4,7 +4,6 @@ import logging
 from app.services.calculation_dist import calculate_all_distances
 from app.services.geocoding_geopy import GeoCodingGeopy
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -36,7 +35,9 @@ def process_file_data(file_data) -> list[list]:
 
     for row_number, row in enumerate(csv_reader, start=2):
         if len(row) < 3:
-            logger.warning(f"Row {row_number} skipped. Wrong count of elements in the row.")
+            logger.warning(
+                f"Row {row_number} skipped. Wrong count of elements in the row."
+            )
             continue
 
         try:
