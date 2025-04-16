@@ -1,4 +1,4 @@
-from geopy.distance import great_circle     # faster then geodesic
+from geopy.distance import great_circle  # faster then geodesic
 
 
 def get_distance(point1: list, point2: list) -> dict[str, float]:

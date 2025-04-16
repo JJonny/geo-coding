@@ -3,12 +3,13 @@ from uuid import uuid4
 
 from sqlalchemy import insert
 
-from app.models import Task, Location
 from app.data_access.interfaces.database_interface import DatabaseInterface
+from app.models import Location, Task
 
 
 class PostgresRepository(DatabaseInterface):
     """Postgres Implementation"""
+
     def __init__(self, session):
         self.db_session = session
 
@@ -32,28 +33,25 @@ class PostgresRepository(DatabaseInterface):
             raise ValueError(f"Task with ID {task_id} not found.")
 
         distances_json = [
-            {
-                'name': link['name'],
-                'distance': link['distance']
-            }
-            for link in task_data['links']
+            {"name": link["name"], "distance": link["distance"]}
+            for link in task_data["links"]
         ]
 
         task.distances = distances_json
-        task.status = 'done'
+        task.status = "done"
 
         self.db_session.add(task)
 
         points_entries = [
             {
-                'id': uuid.uuid4(),
-                'task_id': task_id,
-                'name': point['name'],
-                'address': point['address'],
-                'latitude': point['lat'],
-                'longitude': point['lon']
+                "id": uuid.uuid4(),
+                "task_id": task_id,
+                "name": point["name"],
+                "address": point["address"],
+                "latitude": point["lat"],
+                "longitude": point["lon"],
             }
-            for point in task_data['points']
+            for point in task_data["points"]
         ]
 
         if points_entries:
