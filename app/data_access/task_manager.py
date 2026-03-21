@@ -5,7 +5,8 @@ from flask import current_app
 from app.database import sync_session
 from app.data_access.models.models import Distance, PointAddress
 from app.data_access.repositories.repository_factory import RepositoryFactory
-from app.models import Task, Location
+from app.database import sync_session
+from app.models import Location, Task
 
 
 def get_all_by_task_id(task_id: uuid.UUID) -> dict:

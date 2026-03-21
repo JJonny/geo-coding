@@ -1,4 +1,4 @@
-from geopy.distance import great_circle     # faster then geodesic
+from geopy.distance import great_circle  # faster then geodesic
 
 from app.data_access.models.models import Distance, Point
 

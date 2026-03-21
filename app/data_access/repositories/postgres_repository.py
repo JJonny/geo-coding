@@ -10,6 +10,7 @@ from app.data_access.models.models import Distance, PointAddress
 
 class PostgresRepository(DatabaseInterface):
     """Postgres Implementation"""
+
     def __init__(self, session):
         self.db_session = session
 
@@ -46,7 +47,7 @@ class PostgresRepository(DatabaseInterface):
                 'latitude': point.lat,
                 'longitude': point.lon,
             }
-            for point in task_data['points']
+            for point in task_data["points"]
         ]
 
         if points_entries:

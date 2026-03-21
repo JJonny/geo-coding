@@ -1,12 +1,10 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
-from app.database import Base
 from app.config import Config
+from app.database import Base
 from app.models import Task
 
 # this is the Alembic Config object, which provides
@@ -18,9 +16,10 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-config.set_main_option("sqlalchemy.url",
+config.set_main_option(
+    "sqlalchemy.url",
     f"postgresql+psycopg2://"
-    f"{Config.POSTGRES_USER}:{Config.POSTGRES_PASSWORD}@localhost:{Config.POSTGRES_PORT}/{Config.POSTGRES_DB}"
+    f"{Config.POSTGRES_USER}:{Config.POSTGRES_PASSWORD}@localhost:{Config.POSTGRES_PORT}/{Config.POSTGRES_DB}",
 )
 
 # add your model's MetaData object here
@@ -53,7 +52,7 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
-        version_table_schema='geo_app'
+        version_table_schema="geo_app",
     )
 
     with context.begin_transaction():
@@ -77,7 +76,7 @@ def run_migrations_online() -> None:
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
-            version_table_schema='geo_app'
+            version_table_schema="geo_app",
         )
 
         with context.begin_transaction():
