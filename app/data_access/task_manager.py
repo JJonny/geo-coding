@@ -51,3 +51,16 @@ def save_results_by_task_id(task_id: uuid.UUID, task_data: dict[str, [Distance |
         repository = repository_factory.get_repository(session)
         repository.update_task(task_id=task_id, task_data=task_data)
 
+
+def set_task_failed(task_id: uuid.UUID):
+    """Mark task as FAILED in DB."""
+
+    with sync_session() as session:
+        repository_factory = RepositoryFactory(app=current_app)
+        repository = repository_factory.get_repository(session)
+        task = repository.get_task(task_id=task_id)
+        if task:
+            from app.models import TaskStatus
+            task.status = TaskStatus.FAILED
+            session.commit()
+
