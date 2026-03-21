@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 
-from app.config import Config
+from app.config import Config, settings
 from app.routes.calculate_distance import calculate_distance_bp
 from app.routes.get_result import get_result_bp
 from app.swagger import swagger_ui_blueprint
@@ -10,8 +10,12 @@ from app.utils.celery_app import make_celery
 
 def create_app():
     app = Flask(__name__)
-    CORS(app)
     app.config.from_object(Config)
+    settings.validate()
+
+    allowed_origins = app.config.get("ALLOWED_ORIGINS", "http://localhost:3000")
+    origins = [o.strip() for o in allowed_origins.split(",")]
+    CORS(app, resources={r"/api/*": {"origins": origins}})
 
     app.register_blueprint(calculate_distance_bp, url_prefix="/api")
     app.register_blueprint(get_result_bp, url_prefix="/api")

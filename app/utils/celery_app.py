@@ -12,7 +12,13 @@ def make_celery(app: Flask):
         backend=app.config["CELERY_RESULT_BACKEND"],
         broker=app.config["CELERY_BROKER_URL"],
     )
-    celery.conf.update(app.config)
+    celery.conf.update(
+        task_serializer="json",
+        result_serializer="json",
+        accept_content=["json"],
+        timezone="UTC",
+        enable_utc=True,
+    )
 
     class ContextTask(AbortableTask):
         def __call__(self, *args, **kwargs):

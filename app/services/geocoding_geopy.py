@@ -1,7 +1,7 @@
 import logging
 import time
 from functools import wraps
-from typing import Any, Union
+from typing import Optional
 
 from geopy.adapters import GeocoderTimedOut
 from geopy.geocoders import Nominatim
@@ -10,6 +10,8 @@ from app.data_access.models.models import PointAddress, Point
 from app.services.geocoding import Geocoding
 
 logger = logging.getLogger(__name__)
+
+NOMINATIM_RATE_LIMIT_SECONDS = 1.0
 
 
 def backoff(
@@ -33,7 +35,7 @@ def backoff(
             while True:
                 try:
                     return func(*args, **kwargs)
-                except Exception as e:
+                except GeocoderTimedOut:
                     time.sleep(current_time_sleep)
 
                     if current_time_sleep < border_sleep_time:
@@ -41,11 +43,11 @@ def backoff(
                     else:
                         break
                     try_count += 1
-                    logger.info(f"Timeout service occurred. Coordinates: {args[1]}")
+                    logger.info("Timeout service occurred. Coordinates: %s", args[1])
             logger.warning(
-                f"The service can't provide data for the coordinates: {args[1]}"
+                "The service can't provide data for the coordinates: %s", args[1]
             )
-            return "no data"
+            return None
 
         return inner
 
@@ -53,16 +55,17 @@ def backoff(
 
 
 class GeoCodingGeopy(Geocoding):
-    """Revers Geo coding service. Used geopy lib."""
+    """Reverse geocoding service using geopy/Nominatim."""
 
     def __init__(self):
-        self.geolocator = Nominatim(user_agent="geocode-revers")
+        self.geolocator = Nominatim(user_agent="geocode-reverse")
 
     @backoff()
-    def _get_location(self, coordinates: tuple[float, float]) -> str:
+    def _get_location(self, coordinates: tuple[float, float]) -> Optional[str]:
         """Get readable address by coordinates."""
-
         location = self.geolocator.reverse(coordinates, exactly_one=True)
+        if location is None:
+            return None
         return location.address
 
     def reverse_geocode(self, coordinates_list: list[Point]) -> list[PointAddress]:
@@ -72,6 +75,7 @@ class GeoCodingGeopy(Geocoding):
         for point in coordinates_list:
             coordinates = (point.lat, point.lon)
             address = self._get_location(coordinates)
-            addresses.append(PointAddress(point.name, address, point.lat, point.lon))
+            addresses.append(PointAddress(point.name, address or "no data", point.lat, point.lon))
+            time.sleep(NOMINATIM_RATE_LIMIT_SECONDS)
 
         return addresses

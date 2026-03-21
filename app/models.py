@@ -21,7 +21,10 @@ class Task(Base):
     __table_args__ = {"schema": "geo_app"}
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
-    status: Mapped[str] = mapped_column(SQLEnum(TaskStatus), default=TaskStatus.RUNNING)
+    status: Mapped[TaskStatus] = mapped_column(
+        SQLEnum(TaskStatus, values_callable=lambda x: [e.value for e in x]),
+        default=TaskStatus.RUNNING,
+    )
     distances: Mapped[dict] = mapped_column(JSON, nullable=True)
 
     locations: Mapped[list["Location"]] = relationship(
@@ -33,7 +36,7 @@ class Location(Base):
     __tablename__ = "locations"
     __table_args__ = {"schema": "geo_app"}
 
-    id: Mapped[int] = mapped_column(
+    id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True
     )
     task_id: Mapped[uuid.UUID] = mapped_column(
