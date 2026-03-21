@@ -1,11 +1,12 @@
 import uuid
 from uuid import uuid4
 
-from sqlalchemy import insert
+from geoalchemy2.elements import WKTElement
+from sqlalchemy import insert, text
 
 from app.models import Task, Location, TaskStatus
 from app.data_access.interfaces.database_interface import DatabaseInterface
-from app.data_access.models.models import Distance, PointAddress
+from app.data_access.models.models import PointAddress
 
 
 class PostgresRepository(DatabaseInterface):
@@ -27,31 +28,51 @@ class PostgresRepository(DatabaseInterface):
         task: Task = self.db_session.query(Task).filter_by(id=task_id).one_or_none()
         return task
 
-    def update_task(self, task_id, task_data: dict[str, [Distance | PointAddress]]):
-        """Update task by taks_id"""
+    def update_task(self, task_id, task_data: dict[str, list[PointAddress]]):
+        """Update task by task_id. Saves locations with PostGIS geometry and
+        computes pairwise distances via ST_Distance."""
         task: Task = self.get_task(task_id=task_id)
         if task is None:
             raise ValueError(f"Task with ID {task_id} not found.")
 
-        task.distances = [item._asdict() for item in task_data['links']]
         task.status = TaskStatus.DONE
-
         self.db_session.add(task)
 
         points_entries = [
             {
-                'id': uuid.uuid4(),
-                'task_id': task_id,
-                'name': point.name,
-                'address': point.address,
-                'latitude': point.lat,
-                'longitude': point.lon,
+                "id": uuid.uuid4(),
+                "task_id": task_id,
+                "name": point.name,
+                "address": point.address,
+                "latitude": point.lat,
+                "longitude": point.lon,
+                "geo_point": WKTElement(
+                    f"POINT({point.lon} {point.lat})", srid=4326
+                ),
             }
             for point in task_data["points"]
         ]
 
         if points_entries:
             self.db_session.execute(insert(Location).values(points_entries))
+            self.db_session.flush()
 
-        self.db_session.flush()
+            result = self.db_session.execute(
+                text(
+                    """
+                    SELECT
+                        l1.name || l2.name AS name,
+                        ST_Distance(l1.geo_point, l2.geo_point) AS distance
+                    FROM geo_app.locations l1
+                    JOIN geo_app.locations l2
+                        ON l1.task_id = l2.task_id AND l1.id < l2.id
+                    WHERE l1.task_id = :task_id
+                    """
+                ),
+                {"task_id": str(task_id)},
+            )
+            task.distances = [
+                {"name": row.name, "distance": row.distance} for row in result
+            ]
+
         self.db_session.commit()

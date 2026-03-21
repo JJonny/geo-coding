@@ -6,6 +6,7 @@ from flask import Blueprint, current_app, jsonify, request
 
 from app.database import sync_session
 from app.data_access.models.models import Distance, Point, PointAddress
+from app.data_access.repositories.repository_factory import RepositoryFactory
 from app.data_access.task_manager import save_results_by_task_id
 from app.models import TaskStatus
 from app.services.tasks import reverse_geocode_and_calculate_distances

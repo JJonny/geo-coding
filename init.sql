@@ -1,5 +1,7 @@
 -- init.sql
 
+CREATE EXTENSION IF NOT EXISTS postgis;
+
 CREATE SCHEMA geo_app AUTHORIZATION user_1;
 
 GRANT ALL PRIVILEGES ON SCHEMA geo_app TO user_1;

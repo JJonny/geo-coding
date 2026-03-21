@@ -1,26 +1,19 @@
 import csv
 import logging
 
-from app.data_access.models.models import Distance, Point, PointAddress
-from app.services.calculation_dist import calculate_all_distances
+from app.data_access.models.models import Point, PointAddress
 from app.services.geocoding_geopy import GeoCodingGeopy
 
 logger = logging.getLogger(__name__)
 
 
-def process_geo_data(points: list[Point]) -> dict[str, [Distance | PointAddress]]:
+def process_geo_data(points: list[Point]) -> dict[str, list[PointAddress]]:
     """
-    Receive points and calculate all distinct links between each point including distance in meters.
-    And generate readable addresses
+    Receive points, reverse-geocode them to get readable addresses.
+    Distance calculation is performed in the DB layer via PostGIS.
     """
-    distance: list[Distance] = calculate_all_distances(points)
     addresses: list[PointAddress] = GeoCodingGeopy().reverse_geocode(points)
-
-    result_data = {
-        "points": addresses,
-        "links": distance,
-    }
-    return result_data
+    return {"points": addresses}
 
 
 def process_file_data(file_data) -> list[Point]:
