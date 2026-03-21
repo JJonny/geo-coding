@@ -28,7 +28,8 @@ services:
 
   postgres:
     container_name: geo_postgres
-    image: postgres:13
+    image: imresamu/postgis
+    platform: linux/arm64
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -36,7 +37,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./data/db:/var/lib/postgresql/data
+      - ./data/db:/var/lib/postgresql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
 

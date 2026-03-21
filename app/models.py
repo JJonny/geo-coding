@@ -1,7 +1,8 @@
 import uuid
-
+from typing import Any
 from enum import Enum
 
+from geoalchemy2 import Geography
 from sqlalchemy import String, Float, ForeignKey, JSON, Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -42,5 +43,8 @@ class Location(Base):
     address: Mapped[str] = mapped_column(String, nullable=False)
     latitude: Mapped[float] = mapped_column(Float, nullable=False)
     longitude: Mapped[float] = mapped_column(Float, nullable=False)
+    geo_point: Mapped[Any] = mapped_column(
+        Geography(geometry_type="POINT", srid=4326), nullable=True
+    )
 
     task: Mapped["Task"] = relationship("Task", back_populates="locations")
