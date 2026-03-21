@@ -1,0 +1,8 @@
+[MASTER]
+load-plugins=pylint.extensions.typing
+
+[TYPECHECK]
+generated-members=numpy.*,
+
+[MISCELLANEOUS]
+notes=FIXME,XXX,TODO

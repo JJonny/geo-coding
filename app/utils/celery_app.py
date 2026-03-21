@@ -1,7 +1,10 @@
+from flask import Flask
+
 from celery import Celery
+from celery.contrib.abortable import AbortableTask
 
 
-def make_celery(app):
+def make_celery(app: Flask):
     """Init celery."""
 
     celery = Celery(
@@ -11,7 +14,7 @@ def make_celery(app):
     )
     celery.conf.update(app.config)
 
-    class ContextTask(celery.Task):
+    class ContextTask(AbortableTask):
         def __call__(self, *args, **kwargs):
             with app.app_context():
                 return self.run(*args, **kwargs)

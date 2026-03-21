@@ -1,19 +1,20 @@
 import csv
 import logging
 
+from app.data_access.models.models import Distance, Point, PointAddress
 from app.services.calculation_dist import calculate_all_distances
 from app.services.geocoding_geopy import GeoCodingGeopy
 
 logger = logging.getLogger(__name__)
 
 
-def process_geo_data(points):
+def process_geo_data(points: list[Point]) -> dict[str, [Distance | PointAddress]]:
     """
     Receive points and calculate all distinct links between each point including distance in meters.
     And generate readable addresses
     """
-    distance = calculate_all_distances(points)
-    addresses = GeoCodingGeopy().reverse_geocode(points)
+    distance: list[Distance] = calculate_all_distances(points)
+    addresses: list[PointAddress] = GeoCodingGeopy().reverse_geocode(points)
 
     result_data = {
         "points": addresses,
@@ -22,9 +23,9 @@ def process_geo_data(points):
     return result_data
 
 
-def process_file_data(file_data) -> list[list]:
+def process_file_data(file_data) -> list[Point]:
     """Read csv file. Transform data to list of values"""
-    points = []
+    points: list[Point] = []
 
     csv_reader = csv.reader(file_data)
     # Skip headers
@@ -52,6 +53,6 @@ def process_file_data(file_data) -> list[list]:
             logger.error(f"Incorrect latitude/longitude data in the row {row_number}.")
             continue
 
-        points.append([point_name, lat, lon])
+        points.append(Point(point_name, lat, lon))
 
     return points

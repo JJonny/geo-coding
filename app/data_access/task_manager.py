@@ -2,7 +2,8 @@ import logging
 import uuid
 
 from flask import current_app
-
+from app.database import sync_session
+from app.data_access.models.models import Distance, PointAddress
 from app.data_access.repositories.repository_factory import RepositoryFactory
 from app.database import sync_session
 from app.models import Location, Task
@@ -33,17 +34,34 @@ def get_all_by_task_id(task_id: uuid.UUID) -> dict:
 
             result = {
                 "task_id": str(task.id),
-                "status": task.status,
-                "data": {"points": addresses, "links": task.distances},
+                "status": task.status.value,
+                "data": {
+                    "points": addresses,
+                    "links": task.distances
+                },
             }
 
             return result
 
 
-def save_results_by_task_id(task_id: uuid.UUID, task_data: dict):
+def save_results_by_task_id(task_id: uuid.UUID, task_data: dict[str, [Distance | PointAddress]]):
     """Save results to DB."""
 
     with sync_session() as session:
         repository_factory = RepositoryFactory(app=current_app)
         repository = repository_factory.get_repository(session)
         repository.update_task(task_id=task_id, task_data=task_data)
+
+
+def set_task_failed(task_id: uuid.UUID):
+    """Mark task as FAILED in DB."""
+
+    with sync_session() as session:
+        repository_factory = RepositoryFactory(app=current_app)
+        repository = repository_factory.get_repository(session)
+        task = repository.get_task(task_id=task_id)
+        if task:
+            from app.models import TaskStatus
+            task.status = TaskStatus.FAILED
+            session.commit()
+

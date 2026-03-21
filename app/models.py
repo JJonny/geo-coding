@@ -1,20 +1,26 @@
 import uuid
 
-from sqlalchemy import JSON, Float, ForeignKey, String
+from enum import Enum
+
+from sqlalchemy import String, Float, ForeignKey, JSON, Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
 
 
+class TaskStatus(Enum):
+    RUNNING = 'running'
+    DONE = 'done'
+    FAILED = 'failed'
+
+
 class Task(Base):
     __tablename__ = "tasks"
     __table_args__ = {"schema": "geo_app"}
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True
-    )
-    status: Mapped[str] = mapped_column(String, default="running")  # 'done' | 'faild'
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
+    status: Mapped[str] = mapped_column(SQLEnum(TaskStatus), default=TaskStatus.RUNNING)
     distances: Mapped[dict] = mapped_column(JSON, nullable=True)
 
     locations: Mapped[list["Location"]] = relationship(
