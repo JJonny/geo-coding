@@ -1,6 +1,19 @@
-from collections import namedtuple
+from typing import NamedTuple, Optional
 
 
-Point = namedtuple('Point', ['name', 'lat', 'lon'])
-PointAddress = namedtuple('PointAddress', ['name', 'address', 'lat', 'lon'])
-Distance = namedtuple('Distance', ['name', 'distance'])
+class Point(NamedTuple):
+    name: str
+    lat: float
+    lon: float
+
+
+class PointAddress(NamedTuple):
+    name: str
+    address: str
+    lat: float
+    lon: float
+
+
+class Distance(NamedTuple):
+    name: str
+    distance: float

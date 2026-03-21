@@ -16,6 +16,7 @@ class RepositoryFactory:
         """Return repository depends on configuration."""
         if self.app.config.get("MONGO", None) is None:
             if db_session is None:
-                logger.error(f"Session shouldn't be None for Postgres repository.")
-                raise Exception("Session shouldn't be None")
+                logger.error("Session shouldn't be None for Postgres repository.")
+                raise ValueError("Session shouldn't be None")
             return PostgresRepository(db_session)
+        raise NotImplementedError("No repository implementation available for the current configuration.")

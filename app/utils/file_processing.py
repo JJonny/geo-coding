@@ -1,10 +1,13 @@
 import csv
+import io
 import logging
 
 from app.data_access.models.models import Point, PointAddress
 from app.services.geocoding_geopy import GeoCodingGeopy
 
 logger = logging.getLogger(__name__)
+
+MAX_POINTS = 10_000
 
 
 def process_geo_data(points: list[Point]) -> dict[str, list[PointAddress]]:
@@ -16,22 +19,23 @@ def process_geo_data(points: list[Point]) -> dict[str, list[PointAddress]]:
     return {"points": addresses}
 
 
-def process_file_data(file_data) -> list[Point]:
-    """Read csv file. Transform data to list of values"""
+def process_file_data(file_data: io.TextIOBase) -> list[Point]:
+    """Read csv file. Transform data to list of Point values. Skips invalid rows."""
     points: list[Point] = []
 
     csv_reader = csv.reader(file_data)
-    # Skip headers
-    next(csv_reader, None)
+    next(csv_reader, None)  # skip header
 
     def is_valid(lat: float, lon: float) -> bool:
         return (-90 <= lat <= 90) and (-180 <= lon <= 180)
 
     for row_number, row in enumerate(csv_reader, start=2):
+        if len(points) >= MAX_POINTS:
+            logger.warning("Reached maximum allowed points limit (%d). Remaining rows skipped.", MAX_POINTS)
+            break
+
         if len(row) < 3:
-            logger.warning(
-                f"Row {row_number} skipped. Wrong count of elements in the row."
-            )
+            logger.warning("Row %d skipped. Wrong count of elements in the row.", row_number)
             continue
 
         try:
@@ -39,11 +43,11 @@ def process_file_data(file_data) -> list[Point]:
             lat = float(row[1])
             lon = float(row[2])
         except ValueError as e:
-            logger.error(f"Conversion error in the row {row_number}: {str(e)}")
+            logger.error("Conversion error in row %d: %s", row_number, e)
             continue
 
         if not is_valid(lat, lon):
-            logger.error(f"Incorrect latitude/longitude data in the row {row_number}.")
+            logger.error("Incorrect latitude/longitude data in row %d.", row_number)
             continue
 
         points.append(Point(point_name, lat, lon))
