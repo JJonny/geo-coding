@@ -2,9 +2,6 @@ import io
 import uuid
 from unittest.mock import MagicMock, patch
 
-import pytest
-
-
 def make_csv(*rows: tuple) -> bytes:
     """Build a minimal CSV bytes payload with header row."""
     lines = ["name,lat,lon"] + [f"{name},{lat},{lon}" for name, lat, lon in rows]
@@ -91,60 +88,51 @@ def _make_mock_repo(task_id: str) -> MagicMock:
 
 
 class TestSuccessfulRequest:
-    def test_returns_200_with_task_id(self, client):
+    @patch(PATCH_TASK)
+    @patch(PATCH_FACTORY)
+    @patch(PATCH_SESSION)
+    def test_returns_200_with_task_id(self, _mock_session, mock_factory, _mock_task, client):
         task_id = str(uuid.uuid4())
-        csv = make_csv(("Moscow", 55.75, 37.62), ("London", 51.50, -0.12))
+        mock_factory.return_value.get_repository.return_value = _make_mock_repo(task_id)
 
-        with patch(PATCH_SESSION), \
-             patch(PATCH_FACTORY) as mock_factory, \
-             patch(PATCH_TASK) as mock_task:
-
-            mock_factory.return_value.get_repository.return_value = _make_mock_repo(task_id)
-
-            response = post_csv(client, csv)
+        response = post_csv(client, make_csv(("Moscow", 55.75, 37.62), ("London", 51.50, -0.12)))
 
         assert response.status_code == 200
         body = response.get_json()
         assert body["task_id"] == task_id
         assert body["status"] == "running"
 
-    def test_celery_task_is_enqueued(self, client):
+    @patch(PATCH_TASK)
+    @patch(PATCH_FACTORY)
+    @patch(PATCH_SESSION)
+    def test_celery_task_is_enqueued(self, _mock_session, mock_factory, mock_task, client):
         task_id = str(uuid.uuid4())
-        csv = make_csv(("Moscow", 55.75, 37.62))
+        mock_factory.return_value.get_repository.return_value = _make_mock_repo(task_id)
 
-        with patch(PATCH_SESSION), \
-             patch(PATCH_FACTORY) as mock_factory, \
-             patch(PATCH_TASK) as mock_task:
-
-            mock_factory.return_value.get_repository.return_value = _make_mock_repo(task_id)
-            post_csv(client, csv)
+        post_csv(client, make_csv(("Moscow", 55.75, 37.62)))
 
         mock_task.apply_async.assert_called_once()
 
-    def test_celery_task_receives_correct_task_id(self, client):
+    @patch(PATCH_TASK)
+    @patch(PATCH_FACTORY)
+    @patch(PATCH_SESSION)
+    def test_celery_task_receives_correct_task_id(self, _mock_session, mock_factory, mock_task, client):
         task_id = str(uuid.uuid4())
-        csv = make_csv(("Moscow", 55.75, 37.62))
+        mock_factory.return_value.get_repository.return_value = _make_mock_repo(task_id)
 
-        with patch(PATCH_SESSION), \
-             patch(PATCH_FACTORY) as mock_factory, \
-             patch(PATCH_TASK) as mock_task:
-
-            mock_factory.return_value.get_repository.return_value = _make_mock_repo(task_id)
-            post_csv(client, csv)
+        post_csv(client, make_csv(("Moscow", 55.75, 37.62)))
 
         args_passed = mock_task.apply_async.call_args[1]["args"]
         assert args_passed[1] == task_id  # second arg is task_id
 
-    def test_celery_task_receives_parsed_points(self, client):
+    @patch(PATCH_TASK)
+    @patch(PATCH_FACTORY)
+    @patch(PATCH_SESSION)
+    def test_celery_task_receives_parsed_points(self, _mock_session, mock_factory, mock_task, client):
         task_id = str(uuid.uuid4())
-        csv = make_csv(("Moscow", 55.75, 37.62), ("London", 51.50, -0.12))
+        mock_factory.return_value.get_repository.return_value = _make_mock_repo(task_id)
 
-        with patch(PATCH_SESSION), \
-             patch(PATCH_FACTORY) as mock_factory, \
-             patch(PATCH_TASK) as mock_task:
-
-            mock_factory.return_value.get_repository.return_value = _make_mock_repo(task_id)
-            post_csv(client, csv)
+        post_csv(client, make_csv(("Moscow", 55.75, 37.62), ("London", 51.50, -0.12)))
 
         points_passed = mock_task.apply_async.call_args[1]["args"][0]
         assert len(points_passed) == 2
@@ -152,47 +140,42 @@ class TestSuccessfulRequest:
         assert points_passed[0].lat == 55.75
         assert points_passed[0].lon == 37.62
 
-    def test_repository_create_task_called_with_running_status(self, client):
+    @patch(PATCH_TASK)
+    @patch(PATCH_FACTORY)
+    @patch(PATCH_SESSION)
+    def test_repository_create_task_called_with_running_status(self, _mock_session, mock_factory, _mock_task, client):
         from app.models import TaskStatus
 
         task_id = str(uuid.uuid4())
-        csv = make_csv(("Moscow", 55.75, 37.62))
+        mock_repo = _make_mock_repo(task_id)
+        mock_factory.return_value.get_repository.return_value = mock_repo
 
-        with patch(PATCH_SESSION), \
-             patch(PATCH_FACTORY) as mock_factory, \
-             patch(PATCH_TASK):
-
-            mock_repo = _make_mock_repo(task_id)
-            mock_factory.return_value.get_repository.return_value = mock_repo
-            post_csv(client, csv)
+        post_csv(client, make_csv(("Moscow", 55.75, 37.62)))
 
         mock_repo.create_task.assert_called_once_with({"status": TaskStatus.RUNNING})
 
-    def test_valid_boundary_coordinates_accepted(self, client):
+    @patch(PATCH_TASK)
+    @patch(PATCH_FACTORY)
+    @patch(PATCH_SESSION)
+    def test_valid_boundary_coordinates_accepted(self, _mock_session, mock_factory, _mock_task, client):
         """Coordinates on exact boundary values (-90/90 lat, -180/180 lon) must be accepted."""
         task_id = str(uuid.uuid4())
-        csv = make_csv(("NorthPole", 90.0, 0.0), ("DateLine", 0.0, 180.0))
+        mock_factory.return_value.get_repository.return_value = _make_mock_repo(task_id)
 
-        with patch(PATCH_SESSION), \
-             patch(PATCH_FACTORY) as mock_factory, \
-             patch(PATCH_TASK):
-
-            mock_factory.return_value.get_repository.return_value = _make_mock_repo(task_id)
-            response = post_csv(client, csv)
+        response = post_csv(client, make_csv(("NorthPole", 90.0, 0.0), ("DateLine", 0.0, 180.0)))
 
         assert response.status_code == 200
 
-    def test_mixed_valid_and_invalid_rows_only_valid_forwarded(self, client):
+    @patch(PATCH_TASK)
+    @patch(PATCH_FACTORY)
+    @patch(PATCH_SESSION)
+    def test_mixed_valid_and_invalid_rows_only_valid_forwarded(self, _mock_session, mock_factory, mock_task, client):
         task_id = str(uuid.uuid4())
+        mock_factory.return_value.get_repository.return_value = _make_mock_repo(task_id)
         # Two valid rows + one row out of range
         content = b"name,lat,lon\nMoscow,55.75,37.62\nBad,999,0\nLondon,51.50,-0.12\n"
 
-        with patch(PATCH_SESSION), \
-             patch(PATCH_FACTORY) as mock_factory, \
-             patch(PATCH_TASK) as mock_task:
-
-            mock_factory.return_value.get_repository.return_value = _make_mock_repo(task_id)
-            response = post_csv(client, content)
+        response = post_csv(client, content)
 
         assert response.status_code == 200
         points_passed = mock_task.apply_async.call_args[1]["args"][0]
